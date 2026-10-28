@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estado de las pruebas · Portal ManpowerGroup Colombia</title>
+  <style>
+    /* RESET & BASE */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --border-color: #e2e8f0;
+      --border-dark: #cbd5e1;
+      --text-main: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+
+      /* Semantic status colors requested */
+      --color-approved: #2E7D32;
+      --color-failed: #C62828;
+      --color-blocked: #F9A825;
+      --color-critical: #6A1B1A;
+      --color-high: #C62828;
+      --color-medium: #EF6C00;
+      --color-low: #F9A825;
+
+      --focus-ring: #2563eb;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.4;
+      padding: 14px 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* 16:9 SCREEN CONTAINER FIT */
+    .dashboard-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* 1. HEADER */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    .title-group h1 {
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-main);
+    }
+
+    .title-group p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .header-badges {
+      display: flex;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .header-badge {
+      background: #e2e8f0;
+      padding: 3px 8px;
+      border-radius: 4px;
+      color: var(--text-secondary);
+    }
+
+    /* 3. KPI CARDS */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .kpi-card.alert {
+      border: 2px solid #C62828;
+      background-color: #fffafb;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .kpi-value-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin: 4px 0 2px 0;
+    }
+
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--text-main);
+    }
+
+    .kpi-card.alert .kpi-value {
+      color: #C62828;
+    }
+
+    .kpi-unit {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .kpi-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .kpi-card.alert .kpi-meta {
+      color: #b71c1c;
+      font-weight: 600;
+    }
+
+    /* 4. CHARTS ROW */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 30% 30% 40%;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .chart-header {
+      margin-bottom: 4px;
+    }
+
+    .chart-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .chart-svg-container {
+      width: 100%;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chart-svg-container svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .chart-annotation {
+      font-size: 11px;
+      color: var(--text-secondary);
+      background: #f1f5f9;
+      border-left: 3px solid var(--border-dark);
+      padding: 4px 8px;
+      border-radius: 0 3px 3px 0;
+      margin-top: 6px;
+      line-height: 1.3;
+    }
+
+    /* SVG INTERACTIVE STYLING */
+    .interactive-element {
+      cursor: pointer;
+      transition: opacity 0.15s ease, stroke-width 0.15s ease;
+      outline: none;
+    }
+
+    .interactive-element:hover {
+      opacity: 0.88;
+    }
+
+    .interactive-element:focus-visible {
+      stroke: var(--focus-ring) !important;
+      stroke-width: 3px !important;
+    }
+
+    .interactive-element.dimmed {
+      opacity: 0.22;
+    }
+
+    .interactive-element.selected {
+      stroke: #0f172a !important;
+      stroke-width: 2.5px !important;
+      opacity: 1 !important;
+    }
+
+    /* 5. DETAIL PANEL */
+    .detail-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      min-height: 175px;
+    }
+
+    .detail-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .detail-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .detail-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .filter-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .reset-btn {
+      background: #ffffff;
+      border: 1px solid var(--border-dark);
+      color: var(--text-main);
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .reset-btn:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
+
+    .reset-btn:focus-visible {
+      outline: 2px solid var(--focus-ring);
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 11.5px;
+    }
+
+    thead {
+      background: #f8fafc;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    th {
+      padding: 5px 8px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      border-bottom: 2px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 5px 8px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background-color: #f8fafc;
+    }
+
+    /* BADGES INSIDE TABLE */
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 10.5px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge-approved {
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+
+    .badge-failed {
+      background: #FFEBEE;
+      color: #C62828;
+    }
+
+    .badge-blocked {
+      background: #FFF8E1;
+      color: #F57F17;
+    }
+
+    .badge-critica {
+      background: #FFEBEE;
+      color: #6A1B1A;
+      border: 1px solid #6A1B1A;
+    }
+
+    .badge-alta {
+      background: #FFEBEE;
+      color: #C62828;
+    }
+
+    .badge-media {
+      background: #FFF3E0;
+      color: #EF6C00;
+    }
+
+    .badge-baja {
+      background: #FFFDE7;
+      color: #F57F17;
+    }
+
+    .empty-state {
+      padding: 24px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-style: italic;
+    }
+
+    /* 6. FOOTER */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .priority-action {
+      font-weight: 600;
+      color: #991b1b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .priority-action strong {
+      color: #7f1d1d;
+    }
+
+    .data-sources {
+      color: var(--text-muted);
+      font-size: 10.5px;
+    }
+
+    /* TOOLTIP */
+    #chart-tooltip {
+      position: fixed;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 5px 9px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      pointer-events: none;
+      display: none;
+      z-index: 1000;
+      max-width: 280px;
+      line-height: 1.3;
+    }
+
+    /* PRINT & PROJECTION HIGH CONTRAST */
+    @media print {
+      body {
+        padding: 0;
+        background: #ffffff;
+      }
+
+      .dashboard-container {
+        max-width: 100%;
+      }
+
+      .reset-btn {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="dashboard-container">
+    <!-- 1. TÍTULO Y SUBTÍTULO -->
+    <header>
+      <div class="title-group">
+        <h1>Estado de las pruebas · Portal ManpowerGroup Colombia</h1>
+        <p>15 casos ejecutados en producción</p>
+      </div>
+      <div class="header-badges">
+        <span class="header-badge">Alcance: 100 % Producción</span>
+        <span class="header-badge">Auditoría QA</span>
+      </div>
+    </header>
+
+    <!-- 2. FILA DE 4 TARJETAS CON INDICADORES -->
+    <section class="kpi-row" aria-label="Indicadores clave de rendimiento">
+      <!-- Tarjeta 1 -->
+      <article class="kpi-card">
+        <span class="kpi-label">Cobertura de ejecución</span>
+        <div class="kpi-value-row">
+          <span class="kpi-value">100 %</span>
+          <span class="kpi-unit">(15 de 15)</span>
+        </div>
+        <span class="kpi-meta">Meta: &gt;= 95 % · Cumple</span>
+      </article>
+
+      <!-- Tarjeta 2 -->
+      <article class="kpi-card">
+        <span class="kpi-label">Aprobación</span>
+        <div class="kpi-value-row">
+          <span class="kpi-value">66,67 %</span>
+          <span class="kpi-unit">(10 de 15)</span>
+        </div>
+        <span class="kpi-meta">Meta: &gt;= 65 % (condicional)</span>
+      </article>
+
+      <!-- Tarjeta 3 -->
+      <article class="kpi-card">
+        <span class="kpi-label">Bugs por caso ejecutado</span>
+        <div class="kpi-value-row">
+          <span class="kpi-value">0,33</span>
+          <span class="kpi-unit">defectos / caso</span>
+        </div>
+        <span class="kpi-meta">5 defectos en 15 casos</span>
+      </article>
+
+      <!-- Tarjeta 4: Resalta en rojo -->
+      <article class="kpi-card alert" aria-label="Alerta: Defectos altos abiertos">
+        <span class="kpi-label">Defectos altos abiertos</span>
+        <div class="kpi-value-row">
+          <span class="kpi-value">2</span>
+          <span class="kpi-unit">bloqueantes</span>
+        </div>
+        <span class="kpi-meta">Meta: 0 · NO CUMPLE (Bloquea liberación)</span>
+      </article>
+    </section>
+
+    <!-- 4. FILA DE 3 GRÁFICOS (30% - 30% - 40%) -->
+    <section class="charts-row" aria-label="Gráficos de estado y defectos">
+
+      <!-- Gráfico 1: Estado de ejecución -->
+      <article class="chart-card" id="card-chart-1">
+        <div class="chart-header">
+          <h2 class="chart-title">Resultado de los 15 casos ejecutados</h2>
+        </div>
+        <div class="chart-svg-container" id="container-chart-1">
+          <!-- SVG renderizado dinámicamente -->
+        </div>
+        <p class="chart-annotation">10 de 15 casos aprobados; 5 fallidos, todos con bug asociado.</p>
+      </article>
+
+      <!-- Gráfico 2: Defectos por severidad -->
+      <article class="chart-card" id="card-chart-2">
+        <div class="chart-header">
+          <h2 class="chart-title">Defectos abiertos por severidad (total 5)</h2>
+        </div>
+        <div class="chart-svg-container" id="container-chart-2">
+          <!-- SVG renderizado dinámicamente -->
+        </div>
+        <p class="chart-annotation">El 40 % de los bugs son altos: bloquean la liberación.</p>
+      </article>
+
+      <!-- Gráfico 3: Resultado y densidad por área funcional -->
+      <article class="chart-card" id="card-chart-3">
+        <div class="chart-header">
+          <h2 class="chart-title">Casos por área funcional y densidad de defectos</h2>
+        </div>
+        <div class="chart-svg-container" id="container-chart-3">
+          <!-- SVG renderizado dinámicamente -->
+        </div>
+        <p class="chart-annotation">El portal de empleo salió limpio; el riesgo está en Seguridad y en Header y
+          navegación.</p>
+      </article>
+
+    </section>
+
+    <!-- 5. PANEL DE DETALLE -->
+    <section class="detail-panel" aria-label="Detalle interactivo">
+      <div class="detail-panel-header">
+        <div class="detail-title-wrap">
+          <h2 class="detail-title" id="panel-title">Defectos abiertos (5)</h2>
+          <span class="filter-indicator" id="filter-tag" style="display: none;">Filtro activo</span>
+        </div>
+        <button class="reset-btn" id="btn-reset-filter" type="button"
+          aria-label="Quitar filtro y ver todos los defectos">
+          <span>&times;</span> Quitar filtro
+        </button>
+      </div>
+      <div class="table-container" tabindex="0" role="region" aria-label="Tabla de detalles">
+        <table id="detail-table">
+          <thead id="detail-thead">
+            <!-- Headers dinámicos -->
+          </thead>
+          <tbody id="detail-tbody">
+            <!-- Filas dinámicas -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 6. PIE DE PÁGINA -->
+    <footer>
+      <div class="priority-action">
+        <strong>Acción prioritaria:</strong> eliminar los comentarios con credenciales del código público y hacer que el
+        buscador del encabezado consulte las vacantes.
+      </div>
+      <div class="data-sources">
+        Fuente: casos_de_prueba_final.xlsx y reporte_de_bugs_final.xlsx
+      </div>
+    </footer>
+  </div>
+
+  <!-- TOOLTIP FLOTANTE -->
+  <div id="chart-tooltip" role="tooltip" aria-hidden="true"></div>
+
+  <!-- LÓGICA JAVASCRIPT PURA SIN DEPENDENCIAS -->
+  <script>
+    // DATOS EXACTOS SEGÚN ESPECIFICACIÓN
+    const DATA = {
+      estado_de_ejecucion: [
+        { estado: "Aprobados", casos: 10, pct: "66,67 %", color: "#2E7D32" },
+        { estado: "Fallidos", casos: 5, pct: "33,33 %", color: "#C62828" },
+        { estado: "Bloqueados", casos: 0, pct: "0,00 %", color: "#F9A825" }
+      ],
+      defectos_por_severidad: [
+        { severidad: "Crítica", bugs: 0, color: "#6A1B1A", detalle: "ninguno" },
+        { severidad: "Alta", bugs: 2, color: "#C62828", detalle: "BUG-001 buscador sin vacantes; BUG-003 datos sensibles en el código público" },
+        { severidad: "Media", bugs: 2, color: "#EF6C00", detalle: "BUG-002 selector de país abre pestaña en blanco; BUG-004 casilla de datos sin enlace a la política" },
+        { severidad: "Baja", bugs: 1, color: "#F9A825", detalle: "BUG-005 enlace roto a TikTok" }
+      ],
+      areas_funcionales: [
+        { area: "Seguridad (código público)", aprobados: 0, fallidos: 1, casos: 1, bugs: 1, densidad: "1,00", densNum: 1.00 },
+        { area: "Header y navegación", aprobados: 1, fallidos: 2, casos: 3, bugs: 2, densidad: "0,67", densNum: 0.67 },
+        { area: "Formularios de contacto", aprobados: 2, fallidos: 1, casos: 3, bugs: 1, densidad: "0,33", densNum: 0.33 },
+        { area: "Footer: legal, PQRS y redes", aprobados: 2, fallidos: 1, casos: 3, bugs: 1, densidad: "0,33", densNum: 0.33 },
+        { area: "Portal de empleo (Avature)", aprobados: 5, fallidos: 0, casos: 5, bugs: 0, densidad: "0,00", densNum: 0.00 }
+      ],
+      bugs: [
+        { id: "BUG-001", caso: "TC011", resumen: "El buscador del encabezado no encuentra vacantes", severidad: "Alta", prioridad: "Alta", estado: "Abierto", area: "Header y navegación" },
+        { id: "BUG-002", caso: "TC012", resumen: "El selector de país abre una pestaña en blanco", severidad: "Media", prioridad: "Media", estado: "Abierto", area: "Header y navegación" },
+        { id: "BUG-003", caso: "TC013", resumen: "Datos sensibles visibles en el código público", severidad: "Alta", prioridad: "Alta", estado: "Abierto", area: "Seguridad (código público)" },
+        { id: "BUG-004", caso: "TC014", resumen: "Casilla de datos personales sin enlace a la política", severidad: "Media", prioridad: "Alta", estado: "Abierto", area: "Formularios de contacto" },
+        { id: "BUG-005", caso: "TC015", resumen: "Enlace roto a TikTok en el pie de página", severidad: "Baja", prioridad: "Media", estado: "Abierto", area: "Footer: legal, PQRS y redes" }
+      ],
+      casos: [
+        { caso: "TC001", nombre: "Campos obligatorios en registro de candidato", prioridad: "Alta", estado: "Aprobado", area: "Portal de empleo (Avature)", bug: "" },
+        { caso: "TC002", nombre: "Rechazo de correo con formato inválido", prioridad: "Alta", estado: "Aprobado", area: "Portal de empleo (Avature)", bug: "" },
+        { caso: "TC003", nombre: "Rechazo de archivo .jpg en carga de CV", prioridad: "Alta", estado: "Aprobado", area: "Portal de empleo (Avature)", bug: "" },
+        { caso: "TC004", nombre: "Límite de 30 MB en carga de CV", prioridad: "Media", estado: "Aprobado", area: "Portal de empleo (Avature)", bug: "" },
+        { caso: "TC005", nombre: "Campos condicionales en formulario de contacto", prioridad: "Alta", estado: "Aprobado", area: "Formularios de contacto", bug: "" },
+        { caso: "TC006", nombre: "Aceptación de términos obligatoria", prioridad: "Alta", estado: "Aprobado", area: "Formularios de contacto", bug: "" },
+        { caso: "TC007", nombre: "Búsqueda de vacantes en el portal de empleo", prioridad: "Alta", estado: "Aprobado", area: "Portal de empleo (Avature)", bug: "" },
+        { caso: "TC008", nombre: "Enlace y disponibilidad del portal de PQRS", prioridad: "Alta", estado: "Aprobado", area: "Footer: legal, PQRS y redes", bug: "" },
+        { caso: "TC009", nombre: "Navegación del menú principal", prioridad: "Media", estado: "Aprobado", area: "Header y navegación", bug: "" },
+        { caso: "TC010", nombre: "Enlaces legales del pie de página", prioridad: "Media", estado: "Aprobado", area: "Footer: legal, PQRS y redes", bug: "" },
+        { caso: "TC011", nombre: "Buscador del encabezado ante cargos de vacantes", prioridad: "Alta", estado: "Fallido", area: "Header y navegación", bug: "BUG-001" },
+        { caso: "TC012", nombre: "Selector de país sin selección previa", prioridad: "Media", estado: "Fallido", area: "Header y navegación", bug: "BUG-002" },
+        { caso: "TC013", nombre: "Código público sin datos sensibles", prioridad: "Alta", estado: "Fallido", area: "Seguridad (código público)", bug: "BUG-003" },
+        { caso: "TC014", nombre: "Enlace en la casilla de consentimiento", prioridad: "Media", estado: "Fallido", area: "Formularios de contacto", bug: "BUG-004" },
+        { caso: "TC015", nombre: "Enlace a TikTok en el pie de página", prioridad: "Baja", estado: "Fallido", area: "Footer: legal, PQRS y redes", bug: "BUG-005" }
+      ]
+    };
+
+    // ESTADO DEL FILTRO ACTUAL
+    let currentFilter = {
+      type: null, // 'severity' | 'status' | 'area' | null
+      value: null
+    };
+
+    const tooltip = document.getElementById('chart-tooltip');
+
+    function showTooltip(evt, text) {
+      tooltip.innerHTML = text;
+      tooltip.style.display = 'block';
+      tooltip.setAttribute('aria-hidden', 'false');
+      moveTooltip(evt);
+    }
+
+    function moveTooltip(evt) {
+      const x = evt.clientX + 12;
+      const y = evt.clientY + 12;
+      tooltip.style.left = `${Math.min(x, window.innerWidth - 290)}px`;
+      tooltip.style.top = `${y}px`;
+    }
+
+    function hideTooltip() {
+      tooltip.style.display = 'none';
+      tooltip.setAttribute('aria-hidden', 'true');
+    }
+
+    // ==========================================
+    // RENDERIZADO DE GRÁFICOS SVG PURO
+    // ==========================================
+
+    // GRÁFICO 1: ANILLO (DONUT)
+    function renderChart1() {
+      const container = document.getElementById('container-chart-1');
+      const w = 340;
+      const h = 180;
+      const cx = 95;
+      const cy = 90;
+      const rOuter = 72;
+      const rInner = 46;
+
+      // 10 aprobados, 5 fallidos, 0 bloqueados (total 15)
+      // Segmento Aprobados: 10/15 = 240 deg.
+      // Segmento Fallidos: 5/15 = 120 deg.
+      const total = 15;
+      const slices = [
+        { label: "Aprobados", count: 10, pct: "66,67 %", color: "#2E7D32", startAngle: -90, endAngle: 150 },
+        { label: "Fallidos", count: 5, pct: "33,33 %", color: "#C62828", startAngle: 150, endAngle: 270 },
+        { label: "Bloqueados", count: 0, pct: "0,00 %", color: "#F9A825", startAngle: 270, endAngle: 270 }
+      ];
+
+      function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+        const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+        return {
+          x: centerX + (radius * Math.cos(angleInRadians)),
+          y: centerY + (radius * Math.sin(angleInRadians))
+        };
+      }
+
+      function describeDonutSlice(x, y, radiusOuter, radiusInner, startAngle, endAngle) {
+        if (endAngle - startAngle >= 360) {
+          endAngle = startAngle + 359.99;
+        }
+        const startOuter = polarToCartesian(x, y, radiusOuter, endAngle);
+        const endOuter = polarToCartesian(x, y, radiusOuter, startAngle);
+        const startInner = polarToCartesian(x, y, radiusInner, startAngle);
+        const endInner = polarToCartesian(x, y, radiusInner, endAngle);
+        const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+
+        return [
+          "M", startOuter.x, startOuter.y,
+          "A", radiusOuter, radiusOuter, 0, largeArcFlag, 0, endOuter.x, endOuter.y,
+          "L", startInner.x, startInner.y,
+          "A", radiusInner, radiusInner, 0, largeArcFlag, 1, endInner.x, endInner.y,
+          "Z"
+        ].join(" ");
+      }
+
+      let svg = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Gráfico de anillo de resultado de ejecución">`;
+
+      // Dibujar segmentos
+      slices.forEach((s) => {
+        if (s.count > 0) {
+          const d = describeDonutSlice(cx, cy, rOuter, rInner, s.startAngle, s.endAngle);
+          svg += `
+            <path class="interactive-element segment-c1"
+              id="c1-slice-${s.label.toLowerCase()}"
+              data-status="${s.label}"
+              d="${d}"
+              fill="${s.color}"
+              stroke="#ffffff"
+              stroke-width="1.5"
+              tabindex="0"
+              role="button"
+              aria-label="${s.label}: ${s.count} casos (${s.pct})"
+            />
+          `;
+        }
+      });
+
+      // Centro del anillo
+      svg += `
+        <text x="${cx}" y="${cy - 3}" text-anchor="middle" font-size="16" font-weight="800" fill="#0f172a">66,67 %</text>
+        <text x="${cx}" y="${cy + 13}" text-anchor="middle" font-size="10" font-weight="600" fill="#64748b" text-transform="uppercase" letter-spacing="0.05em">aprobación</text>
+      `;
+
+      // Leyenda lateral interactiva con valores y porcentajes explícitos
+      const legendX = 190;
+      let legendY = 38;
+      slices.forEach((s) => {
+        const isSelected = (currentFilter.type === 'status' && currentFilter.value === s.label);
+        svg += `
+          <g class="interactive-element legend-c1"
+             data-status="${s.label}"
+             tabindex="0"
+             role="button"
+             aria-label="Filtrar por casos ${s.label}"
+             transform="translate(${legendX}, ${legendY})">
+            <rect x="0" y="-10" width="138" height="26" rx="4" fill="${isSelected ? '#e2e8f0' : 'transparent'}" />
+            <rect x="4" y="-3" width="12" height="12" rx="2" fill="${s.color}" />
+            <text x="22" y="6" font-size="11.5" font-weight="700" fill="#0f172a">${s.label}: ${s.count}</text>
+            <text x="22" y="20" font-size="10" font-weight="500" fill="#64748b">${s.pct}</text>
+          </g>
+        `;
+        legendY += 38;
+      });
+
+      svg += `</svg>`;
+      container.innerHTML = svg;
+
+      // Eventos para segmentos y leyenda
+      container.querySelectorAll('.interactive-element').forEach(el => {
+        const status = el.getAttribute('data-status');
+        const item = slices.find(s => s.label === status);
+        const tooltipText = `<strong>${status}</strong>: ${item.count} casos (${item.pct})<br><span style="color:#cbd5e1;font-size:10px;">Clic para ver casos</span>`;
+
+        el.addEventListener('mouseenter', (e) => showTooltip(e, tooltipText));
+        el.addEventListener('mousemove', moveTooltip);
+        el.addEventListener('mouseleave', hideTooltip);
+
+        el.addEventListener('click', () => toggleFilter('status', status));
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleFilter('status', status);
+          }
+        });
+      });
+    }
+
+    // GRÁFICO 2: COLUMNAS VERTICALES (DEFECTOS POR SEVERIDAD)
+    function renderChart2() {
+      const container = document.getElementById('container-chart-2');
+      const w = 340;
+      const h = 180;
+      const padLeft = 32;
+      const padRight = 16;
+      const padTop = 22;
+      const padBottom = 28;
+
+      const chartW = w - padLeft - padRight;
+      const chartH = h - padTop - padBottom;
+
+      // Eje Y: 0 a 3, solo enteros
+      const maxY = 3;
+      const yScale = val => padTop + chartH - (val / maxY * chartH);
+
+      const items = DATA.defectos_por_severidad;
+      const colWidth = 36;
+      const step = chartW / items.length;
+
+      let svg = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Gráfico de columnas de defectos por severidad">`;
+
+      // Líneas de cuadrícula y etiquetas eje Y (0, 1, 2, 3)
+      for (let yVal = 0; yVal <= maxY; yVal++) {
+        const yPos = yScale(yVal);
+        svg += `
+          <line x1="${padLeft}" y1="${yPos}" x2="${w - padRight}" y2="${yPos}" stroke="#e2e8f0" stroke-width="1" />
+          <text x="${padLeft - 6}" y="${yPos + 3.5}" text-anchor="end" font-size="10" font-weight="600" fill="#64748b">${yVal}</text>
+        `;
+      }
+
+      // Columnas
+      items.forEach((item, idx) => {
+        const xPos = padLeft + (idx * step) + (step - colWidth) / 2;
+        const barH = (item.bugs / maxY) * chartH;
+        const yPos = yScale(item.bugs);
+
+        // Barra interactiva (incluso si bugs === 0, creamos un hit-area de altura mínima para hover/click)
+        const hitH = Math.max(barH, 14);
+        const hitY = item.bugs === 0 ? yScale(0) - 14 : yPos;
+
+        svg += `
+          <g class="interactive-element col-c2"
+             id="c2-col-${item.severidad.toLowerCase()}"
+             data-severity="${item.severidad}"
+             tabindex="0"
+             role="button"
+             aria-label="Severidad ${item.severidad}: ${item.bugs} defectos. ${item.detalle}">
+            
+            <!-- Hit area transparente para facilitar clic en cero -->
+            <rect x="${xPos - 6}" y="${hitY - 14}" width="${colWidth + 12}" height="${hitH + 20}" fill="transparent" />
+
+            <!-- Columna visible -->
+            <rect x="${xPos}" y="${yPos}" width="${colWidth}" height="${barH}"
+                  fill="${item.color}" rx="3"
+                  stroke="#ffffff" stroke-width="1" />
+
+            <!-- Etiqueta encima de la columna (incluido el 0) -->
+            <text x="${xPos + colWidth / 2}" y="${yPos - 5}"
+                  text-anchor="middle" font-size="12" font-weight="800" fill="#0f172a">
+              ${item.bugs}
+            </text>
+
+            <!-- Etiqueta eje X -->
+            <text x="${xPos + colWidth / 2}" y="${h - 10}"
+                  text-anchor="middle" font-size="11" font-weight="600" fill="#334155">
+              ${item.severidad}
+            </text>
+          </g>
+        `;
+      });
+
+      svg += `</svg>`;
+      container.innerHTML = svg;
+
+      // Eventos
+      container.querySelectorAll('.col-c2').forEach(el => {
+        const sev = el.getAttribute('data-severity');
+        const item = items.find(d => d.severidad === sev);
+        const tooltipContent = `<strong>Severidad ${sev} (${item.bugs} bugs)</strong><br><span style="font-size:10.5px;color:#f1f5f9;">Detalle: ${item.detalle}</span><br><span style="color:#94a3b8;font-size:9.5px;">Clic para filtrar</span>`;
+
+        el.addEventListener('mouseenter', (e) => showTooltip(e, tooltipContent));
+        el.addEventListener('mousemove', moveTooltip);
+        el.addEventListener('mouseleave', hideTooltip);
+
+        el.addEventListener('click', () => toggleFilter('severity', sev));
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleFilter('severity', sev);
+          }
+        });
+      });
+    }
+
+    // GRÁFICO 3: BARRAS HORIZONTALES APILADAS (POR ÁREA FUNCIONAL)
+    function renderChart3() {
+      const container = document.getElementById('container-chart-3');
+      const w = 490;
+      const h = 180;
+      const padLeft = 175;
+      const padRight = 85;
+      const padTop = 12;
+      const padBottom = 14;
+
+      const chartW = w - padLeft - padRight;
+      const chartH = h - padTop - padBottom;
+
+      const items = DATA.areas_funcionales;
+      const maxVal = 5; // Portal tiene 5 casos
+      const rowStep = chartH / items.length;
+      const barHeight = 15;
+
+      let svg = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Gráfico de barras apiladas por área funcional">`;
+
+      // Cuadrículas verticales tenues
+      for (let c = 0; c <= maxVal; c++) {
+        const xPos = padLeft + (c / maxVal) * chartW;
+        svg += `
+          <line x1="${xPos}" y1="${padTop}" x2="${xPos}" y2="${h - padBottom}" stroke="#f1f5f9" stroke-width="1" />
+        `;
+      }
+
+      items.forEach((item, idx) => {
+        const yMid = padTop + (idx * rowStep) + rowStep / 2;
+        const yBar = yMid - barHeight / 2;
+
+        const wApproved = (item.aprobados / maxVal) * chartW;
+        const wFailed = (item.fallidos / maxVal) * chartW;
+        const totalW = wApproved + wFailed;
+
+        // Formato con coma decimal
+        const densidadTexto = `densidad ${item.densidad.replace('.', ',')}`;
+
+        svg += `
+          <g class="interactive-element row-c3"
+             id="c3-row-${idx}"
+             data-area="${item.area}"
+             tabindex="0"
+             role="button"
+             aria-label="Área ${item.area}: ${item.casos} casos (${item.aprobados} aprobados, ${item.fallidos} fallidos, ${item.bugs} bugs, ${densidadTexto})">
+            
+            <!-- Etiqueta del área funcional a la izquierda -->
+            <text x="${padLeft - 8}" y="${yMid + 3.5}" text-anchor="end" font-size="10" font-weight="600" fill="#334155">
+              ${item.area}
+            </text>
+
+            <!-- Hit area para clic cómodo -->
+            <rect x="10" y="${yBar - 3}" width="${w - 20}" height="${barHeight + 6}" fill="transparent" />
+
+            <!-- Barra Aprobados (Verde) -->
+            ${item.aprobados > 0 ? `
+              <rect x="${padLeft}" y="${yBar}" width="${wApproved}" height="${barHeight}"
+                    fill="#2E7D32" rx="${item.fallidos === 0 ? 3 : 0}" />
+              <text x="${padLeft + wApproved / 2}" y="${yMid + 3.5}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#ffffff">
+                ${item.aprobados}
+              </text>
+            ` : ''}
+
+            <!-- Barra Fallidos (Rojo) -->
+            ${item.fallidos > 0 ? `
+              <rect x="${padLeft + wApproved}" y="${yBar}" width="${wFailed}" height="${barHeight}"
+                    fill="#C62828" rx="${item.aprobados === 0 ? 3 : 0}" />
+              <text x="${padLeft + wApproved + wFailed / 2}" y="${yMid + 3.5}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#ffffff">
+                ${item.fallidos}
+              </text>
+            ` : ''}
+
+            <!-- Texto de densidad al final de la barra -->
+            <text x="${padLeft + totalW + 6}" y="${yMid + 3.5}" text-anchor="start" font-size="10" font-weight="700" fill="#475569">
+              ${densidadTexto}
+            </text>
+          </g>
+        `;
+      });
+
+      svg += `</svg>`;
+      container.innerHTML = svg;
+
+      // Eventos
+      container.querySelectorAll('.row-c3').forEach(el => {
+        const area = el.getAttribute('data-area');
+        const item = items.find(d => d.area === area);
+        const tooltipContent = `
+          <strong>${item.area}</strong><br>
+          • Total casos: ${item.casos}<br>
+          • Aprobados: ${item.aprobados} | Fallidos: ${item.fallidos}<br>
+          • Defectos: ${item.bugs}<br>
+          • Densidad: ${item.densidad.replace('.', ',')}<br>
+          <span style="color:#94a3b8;font-size:9.5px;">Clic para ver casos de esta área</span>
+        `;
+
+        el.addEventListener('mouseenter', (e) => showTooltip(e, tooltipContent));
+        el.addEventListener('mousemove', moveTooltip);
+        el.addEventListener('mouseleave', hideTooltip);
+
+        el.addEventListener('click', () => toggleFilter('area', area));
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleFilter('area', area);
+          }
+        });
+      });
+    }
+
+    // ==========================================
+    // CONTROL DE FILTROS E INTERACTIVIDAD
+    // ==========================================
+
+    function toggleFilter(type, value) {
+      if (currentFilter.type === type && currentFilter.value === value) {
+        // Segundo clic en el mismo elemento: quita el filtro
+        resetFilter();
+      } else {
+        currentFilter = { type, value };
+        updateVisualSelection();
+        renderDetailPanel();
+      }
+    }
+
+    function resetFilter() {
+      currentFilter = { type: null, value: null };
+      updateVisualSelection();
+      renderDetailPanel();
+    }
+
+    function updateVisualSelection() {
+      const resetBtn = document.getElementById('btn-reset-filter');
+      const filterTag = document.getElementById('filter-tag');
+
+      if (!currentFilter.type) {
+        resetBtn.style.display = 'none';
+        filterTag.style.display = 'none';
+        // Quitar dimming y selected de todos los elementos
+        document.querySelectorAll('.interactive-element').forEach(el => {
+          el.classList.remove('dimmed', 'selected');
+        });
+        return;
+      }
+
+      resetBtn.style.display = 'inline-flex';
+      filterTag.style.display = 'inline-flex';
+
+      // Actualizar Chart 1
+      document.querySelectorAll('#container-chart-1 .interactive-element').forEach(el => {
+        const status = el.getAttribute('data-status');
+        if (currentFilter.type === 'status') {
+          if (status === currentFilter.value) {
+            el.classList.add('selected');
+            el.classList.remove('dimmed');
+          } else {
+            el.classList.remove('selected');
+            el.classList.add('dimmed');
+          }
+        } else {
+          el.classList.add('dimmed');
+          el.classList.remove('selected');
+        }
+      });
+
+      // Actualizar Chart 2
+      document.querySelectorAll('#container-chart-2 .interactive-element').forEach(el => {
+        const sev = el.getAttribute('data-severity');
+        if (currentFilter.type === 'severity') {
+          if (sev === currentFilter.value) {
+            el.classList.add('selected');
+            el.classList.remove('dimmed');
+          } else {
+            el.classList.remove('selected');
+            el.classList.add('dimmed');
+          }
+        } else {
+          el.classList.add('dimmed');
+          el.classList.remove('selected');
+        }
+      });
+
+      // Actualizar Chart 3
+      document.querySelectorAll('#container-chart-3 .interactive-element').forEach(el => {
+        const area = el.getAttribute('data-area');
+        if (currentFilter.type === 'area') {
+          if (area === currentFilter.value) {
+            el.classList.add('selected');
+            el.classList.remove('dimmed');
+          } else {
+            el.classList.remove('selected');
+            el.classList.add('dimmed');
+          }
+        } else {
+          el.classList.add('dimmed');
+          el.classList.remove('selected');
+        }
+      });
+    }
+
+    // ==========================================
+    // RENDERIZADO DEL PANEL DE DETALLE
+    // ==========================================
+
+    function renderDetailPanel() {
+      const titleEl = document.getElementById('panel-title');
+      const theadEl = document.getElementById('detail-thead');
+      const tbodyEl = document.getElementById('detail-tbody');
+      const filterTag = document.getElementById('filter-tag');
+
+      // VISTA INICIAL: SIN FILTRO (muestra los 5 defectos)
+      if (!currentFilter.type) {
+        titleEl.textContent = `Detalle de defectos abiertos (${DATA.bugs.length})`;
+        filterTag.style.display = 'none';
+
+        theadEl.innerHTML = `
+          <tr>
+            <th style="width: 80px;">ID</th>
+            <th style="width: 70px;">Caso</th>
+            <th>Resumen del defecto</th>
+            <th style="width: 90px;">Severidad</th>
+            <th style="width: 90px;">Prioridad</th>
+            <th style="width: 80px;">Estado</th>
+            <th>Área funcional</th>
+          </tr>
+        `;
+
+        tbodyEl.innerHTML = DATA.bugs.map(b => `
+          <tr>
+            <td><strong>${b.id}</strong></td>
+            <td><code>${b.caso}</code></td>
+            <td>${b.resumen}</td>
+            <td><span class="badge badge-${b.severidad.toLowerCase()}">${b.severidad}</span></td>
+            <td>${b.prioridad}</td>
+            <td><span class="badge badge-failed">${b.estado}</span></td>
+            <td>${b.area}</td>
+          </tr>
+        `).join('');
+        return;
+      }
+
+      // FILTRO POR SEVERIDAD (DESDE GRÁFICO 2)
+      if (currentFilter.type === 'severity') {
+        const sev = currentFilter.value;
+        const filteredBugs = DATA.bugs.filter(b => b.severidad.toLowerCase() === sev.toLowerCase());
+
+        filterTag.textContent = `Severidad: ${sev}`;
+
+        if (sev.toLowerCase() === 'crítica') {
+          titleEl.textContent = `Defectos de severidad Crítica (0)`;
+          theadEl.innerHTML = ``;
+          tbodyEl.innerHTML = `<tr><td colspan="7" class="empty-state">No hay defectos críticos</td></tr>`;
+          return;
+        }
+
+        titleEl.textContent = `Defectos de severidad ${sev} (${filteredBugs.length})`;
+        theadEl.innerHTML = `
+          <tr>
+            <th style="width: 80px;">ID</th>
+            <th style="width: 70px;">Caso</th>
+            <th>Resumen del defecto</th>
+            <th style="width: 90px;">Severidad</th>
+            <th style="width: 90px;">Prioridad</th>
+            <th style="width: 80px;">Estado</th>
+            <th>Área funcional</th>
+          </tr>
+        `;
+
+        tbodyEl.innerHTML = filteredBugs.map(b => `
+          <tr>
+            <td><strong>${b.id}</strong></td>
+            <td><code>${b.caso}</code></td>
+            <td>${b.resumen}</td>
+            <td><span class="badge badge-${b.severidad.toLowerCase()}">${b.severidad}</span></td>
+            <td>${b.prioridad}</td>
+            <td><span class="badge badge-failed">${b.estado}</span></td>
+            <td>${b.area}</td>
+          </tr>
+        `).join('');
+        return;
+      }
+
+      // FILTRO POR ESTADO DE EJECUCIÓN (DESDE GRÁFICO 1)
+      if (currentFilter.type === 'status') {
+        const status = currentFilter.value;
+        filterTag.textContent = `Estado: ${status}`;
+
+        if (status.toLowerCase() === 'bloqueados') {
+          titleEl.textContent = `Casos bloqueados (0)`;
+          theadEl.innerHTML = ``;
+          tbodyEl.innerHTML = `<tr><td colspan="5" class="empty-state">No hay casos bloqueados</td></tr>`;
+          return;
+        }
+
+        // Casos aprobados o fallidos
+        // Normalizamos "Aprobados" -> "Aprobado", "Fallidos" -> "Fallido"
+        const statusTarget = status === 'Aprobados' ? 'Aprobado' : (status === 'Fallidos' ? 'Fallido' : status);
+        const filteredCases = DATA.casos.filter(c => c.estado === statusTarget);
+
+        titleEl.textContent = `Casos ${status.toLowerCase()} (${filteredCases.length})`;
+        theadEl.innerHTML = `
+          <tr>
+            <th style="width: 70px;">Caso</th>
+            <th>Nombre del caso de prueba</th>
+            <th style="width: 80px;">Prioridad</th>
+            <th>Área funcional</th>
+            <th style="width: 100px;">Bug asociado</th>
+          </tr>
+        `;
+
+        tbodyEl.innerHTML = filteredCases.map(c => `
+          <tr>
+            <td><strong><code>${c.caso}</code></strong></td>
+            <td>${c.nombre}</td>
+            <td>${c.prioridad}</td>
+            <td>${c.area}</td>
+            <td>${c.bug ? `<span class="badge badge-failed">${c.bug}</span>` : '<span style="color:#94a3b8;">—</span>'}</td>
+          </tr>
+        `).join('');
+        return;
+      }
+
+      // FILTRO POR ÁREA FUNCIONAL (DESDE GRÁFICO 3)
+      if (currentFilter.type === 'area') {
+        const area = currentFilter.value;
+        filterTag.textContent = `Área: ${area}`;
+        const filteredCases = DATA.casos.filter(c => c.area.trim().toLowerCase() === area.trim().toLowerCase());
+
+        titleEl.textContent = `Casos de ${area} (${filteredCases.length})`;
+        theadEl.innerHTML = `
+          <tr>
+            <th style="width: 70px;">Caso</th>
+            <th>Nombre del caso de prueba</th>
+            <th style="width: 80px;">Prioridad</th>
+            <th style="width: 90px;">Estado</th>
+            <th style="width: 100px;">Bug asociado</th>
+          </tr>
+        `;
+
+        tbodyEl.innerHTML = filteredCases.map(c => `
+          <tr>
+            <td><strong><code>${c.caso}</code></strong></td>
+            <td>${c.nombre}</td>
+            <td>${c.prioridad}</td>
+            <td><span class="badge badge-${c.estado === 'Aprobado' ? 'approved' : 'failed'}">${c.estado}</span></td>
+            <td>${c.bug ? `<span class="badge badge-failed">${c.bug}</span>` : '<span style="color:#94a3b8;">—</span>'}</td>
+          </tr>
+        `).join('');
+        return;
+      }
+    }
+
+    // BOTÓN QUITAR FILTRO
+    document.getElementById('btn-reset-filter').addEventListener('click', resetFilter);
+
+    // INICIALIZACIÓN AL CARGAR LA PÁGINA
+    window.addEventListener('DOMContentLoaded', () => {
+      renderChart1();
+      renderChart2();
+      renderChart3();
+      renderDetailPanel();
+    });
+  </script>
+</body>
+
+</html>
